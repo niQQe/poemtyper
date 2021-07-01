@@ -16,7 +16,6 @@ const poemsAmount = computed(() => poems.value.length);
 
 const filteredPoems = computed(() => {
 	if (!searchString.value.length > 3) return poems.value;
-	console.log('inne');
 	return poems.value.filter((poem) => {
 		const text = poem.lines.reduce((allText, line) => {
 			allText += line;

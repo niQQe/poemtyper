@@ -23,6 +23,8 @@
 <script>
 export default {
 	setup() {
+
+		//TODO FIXA GLOBAL RANKING
 		return {};
 	},
 };
@@ -39,7 +41,7 @@ export default {
 table {
 	width: 100%;
 	border-collapse: collapse;
-	font-family: 'Google sans';
+	font-family: 'Poppins';
 }
 
 th {

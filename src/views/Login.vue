@@ -11,10 +11,12 @@ export default {
 			const provider = new firebase.auth.GoogleAuthProvider();
 			try {
 				const user = await firebase.auth().signInWithPopup(provider);
+				console.log('HÄR');
 				console.log(user);
 				if (user) {
-					const { email, picture, id } = user.additionalUserInfo.profile;
-					userHandler.setUserInfo({ email, picture, id });
+					const { email, photoUrl, uid } = user;
+					console.log(email, photoUrl, uid);
+					userHandler.setUserInfo({ email, photoUrl, uid });
 				}
 			} catch (e) {
 				console.log(e);

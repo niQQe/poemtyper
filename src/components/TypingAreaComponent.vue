@@ -75,9 +75,11 @@ export default {
 			return currentLine.value === poemData.length - 1 && currentCharIndex.value === poemData[poemData.length - 1].length;
 		};
 
+		//TODO VISA KALKYLERAT SCORE NÄR MAN ÄR KLAR
+
 		const setCorrect = (currentChar) => (currentChar.correct = true);
 
-		const setCompleted = () => (completed.value = true);
+		const setCompleted = () =>  completed.value = true
 
 		const addEventListener = () => window.addEventListener('keydown', keyHandler);
 
@@ -267,7 +269,7 @@ export default {
 }
 
 .line {
-	font-family: 'Google Sans';
+	font-family: 'Poppins';
 	width: 100%;
 	float: left;
 	color: #666;

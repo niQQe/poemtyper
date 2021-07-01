@@ -14,6 +14,7 @@
 		<div class="poem-author">{{ poemData.author }}</div>
 		<div class="poem-sample" :class="[fadeUp ? 'fadeUp' : '']">{{ createSample(poemData.lines) }}</div>
 		<div class="poem-lines">{{ poemData.lines.length }}</div>
+		<div style="position:absolute;bottom:30px;left:0;width:100%;height:30px;background-image: linear-gradient(transparent, white);"></div>
 	</div>
 </template>
 
@@ -48,6 +49,8 @@ export default {
 .poem-card {
 	border: 1px solid #dadce0;
 	border-radius: 10px;
+	position:relative;
+	overflow:hidden;
 	width: 100%;
 	height: 100%;
 	float: left;

@@ -3,7 +3,7 @@
 		:class="[addNavShadow ? 'nav-shadow' : '']"
 		style="height:64px;width:100%;border-bottom:1px solid #dadce0;position:fixed;top:0px;display:flex;justify-content:center;background:#fff;z-index:200;"
 	>
-		<div style="width:1790px;display:flex;align-items:center;justify-content:space-between;align-items:stretch;padding-right:165px">
+		<div style="width:80%;display:flex;align-items:center;justify-content:space-between;align-items:stretch">
 			<div class="logo">
 				<div class="logo-img"></div>
 				<span>Poetry</span> Typer
@@ -42,16 +42,16 @@
 				</div>
 				<div v-if="userHandler.isAuthenticated()">
 					<div style="display:flex;align-items:center;font-weight:500;margin-left:30px;">
-						<img style="width:30px;height:30px;border-radius:30px;margin-right:15px;" :src="userHandler.getUserInfo().picture" />
+						<img style="width:30px;height:30px;border-radius:30px;margin-right:15px;" @click="logout()" :src="userHandler.getUserInfo().picture" />
 						<!-- {{ userHandler.userInfo.value.displayName }} -->
 					</div>
-					<button @click="logout">Logout</button>
+					<!-- <button @click="logout">Logout</button> -->
 				</div>
 			</div>
 		</div>
 	</nav>
-	<div style="margin-top:64px;padding-top:6px;display:flex; justify-content:center">
-		<div style="width:1440px;display:flex" v-if="fetchComplete">
+	<div style="margin-top:64px;display:flex; justify-content:center">
+		<div style="width:80%;display:flex" v-if="fetchComplete">
 			<router-view />
 		</div>
 	</div>
@@ -71,7 +71,7 @@ export default {
 		const routerItems = [
 			{
 				text: 'Browse Poems',
-				href: '/poems',
+				href: '/',
 			},
 			{
 				text: 'Rankings',
@@ -87,10 +87,17 @@ export default {
 
 		const router = useRouter();
 
+	// TODO FIXA ALL INLINESTYLEING, BILD SYNS INTE VID FÖRSTA INLOGG
+
+	// TODO FIXA SÅ ATT DINA SCORES SYNS PÅ DIN PROFIL
+
+	// TODO FIXA SÅ MAN KAN GÅ IN PÅ aNDRAS PROFILER O SE DERAS SCORES
+
 		firebase.auth().onAuthStateChanged((user) => {
 			if (user) {
-				const { email, photoURL, id } = user;
-				userHandler.setUserInfo({ email, picture: photoURL, id });
+				const { email, photoURL, uid } = user;
+				console.log(user);
+				userHandler.setUserInfo({ email, picture: photoURL, uid });
 				userHandler.setAuthenticated();
 			}
 		});
@@ -98,11 +105,10 @@ export default {
 		const login = async () => {
 			const provider = new firebase.auth.GoogleAuthProvider();
 			try {
-				const user = await firebase.auth().signInWithPopup(provider);
-				console.log(user);
-				if (user) {
-					const { email, picture, id } = user.additionalUserInfo.profile;
-					userHandler.setUserInfo({ email, picture, id });
+				const userInfo = await firebase.auth().signInWithPopup(provider);
+				if (userInfo) {
+					const { email, photoURL, uid } = userInfo.user;
+					userHandler.setUserInfo({ email, photoURL, uid });
 				}
 			} catch (e) {
 				console.log(e);
@@ -112,7 +118,7 @@ export default {
 		const logout = async () => {
 			await firebase.auth().signOut();
 			userHandler.unsetAuthenticated();
-			router.push('/poems');
+			router.push('/');
 		};
 
 		onMounted(async () => {
@@ -156,7 +162,7 @@ body {
 }
 
 #app {
-	font-family: 'Nunito', Helvetica, Arial, sans-serif;
+	font-family: 'Poppins', Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	color: #2c3e50;
@@ -186,12 +192,12 @@ nav {
 	font-size: 23px;
 	display: flex;
 	align-items: center;
-	font-weight: 300;
+	font-weight: 400;
 }
 
 .router-items {
 	display: flex;
-	font-size: 16px;
+	font-size: 15px;
 	align-items: center;
 }
 
@@ -213,6 +219,10 @@ nav {
 	color: #1a73e8 !important;
 	border-bottom: 2px solid #1a73e8;
 	margin-top: 1px;
+}
+
+.router-link-exact-active:hover{
+	background:#1a73e80a!important;
 }
 
 a {

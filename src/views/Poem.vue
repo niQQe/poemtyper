@@ -6,12 +6,19 @@
 				<div class="author">
 					Written by <span>{{ poem.author }}</span>
 				</div>
+				<div class="info-wrapper">
+					<div class="info">
+						Remember to sign in if you want to submit your score.<br/>
+						You can cancel and reset your run with the ESC-key.
+					</div>
+				</div>
 			</div>
 			<div class="poem-header">
 				<div class="poem-nav">
 					<button
 						@click="setActiveTab('poem')"
 						class="item"
+						:class="activeTab === 'poem' ? 'active' : ''"
 						:style="[activeTab === 'poem' ? 'color:#1a73e8' : '']"
 						v-wave="{
 							color: '#1a73e8',
@@ -27,6 +34,7 @@
 					<button
 						@click="setActiveTab('highscore')"
 						class="item"
+						:class="activeTab === 'highscore' ? 'active' : ''"
 						:style="[activeTab === 'highscore' ? 'color:#1a73e8' : '']"
 						v-wave="{
 							color: '#1a73e8',
@@ -40,7 +48,7 @@
 						Highscore
 					</button>
 
-					<div class="active-bar" :style="[activeTab == 'poem' ? 'width:96px;left:0px' : 'left:97px;width:127px;']"></div>
+					<div class="active-bar" :style="[activeTab == 'poem' ? 'width:101px;left:0px' : 'left:101px;width:131px;']"></div>
 				</div>
 				<div class="typing-stats" :style="[activeTab === 'highscore' ? 'opacity:0' : '']" :class="[completed ? 'completed' : '']">
 					<div class="value-wrapper">
@@ -58,6 +66,7 @@
 					<div class="submit-wrapper" :class="[completed ? 'fadeIn' : '']">
 						<button
 							class="submit-score"
+							@click="submitScore"
 							v-wave="{
 								color: 'currentColor',
 								easing: 'ease-out',
@@ -74,12 +83,12 @@
 			</div>
 		</div>
 		<div class="content-area-wrapper">
-			<div class="content" :style="[activeTab === 'poem' ? 'left:0;opacity:1' : 'left:-1152px']">
-				<div class="content-item typing">
+			<div class="content">
+				<div class="content-item typing" v-show="activeTab === 'poem'">
 					<TypingArea :poem="poem" />
 				</div>
-				<div class="content-item highscore">
-					<Highscore :active="activeTab" />
+				<div class="content-item highscore" v-show="activeTab === 'highscore'">
+					<Highscore :highscores="sortedHighscores" :active="activeTab" />
 				</div>
 			</div>
 		</div>
@@ -87,8 +96,9 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { postService, getService } from '@/service/Firebase.js';
 import TypingArea from '@/components/TypingAreaComponent.vue';
 import Highscore from '@/components/HighscoreComponent.vue';
 import statsHandler from '@/modules/stats-handler.js';
@@ -99,9 +109,15 @@ export default {
 		Highscore,
 	},
 	setup() {
+
+		// TODO FIXA LOADER PÅ SUBMIT SCORE OCH FEEDBACK
+
+		// TODO FIXA SÅ DEN PUSHAR IN DITT SCORE I HIGHSCORE _OM_ SCORET ÄR TILLRÄCKLIGT HÖGT
 		const { timer, progressCounter, accuracy, completed } = statsHandler;
 
 		const { getSinglePoem } = dataHandler;
+
+		const highscores = ref([]);
 
 		const route = useRoute();
 
@@ -111,6 +127,28 @@ export default {
 
 		const setActiveTab = (tab) => (activeTab.value = tab);
 
+		const getHighscores = async () => {
+			const response = await getService({ collection: 'scores', id: route.params.id });
+			highscores.value = response;
+		};
+
+		const sortedHighscores = computed(() => {
+			return highscores.value.slice(0).sort((a,b) => +b.score - +a.score)
+		})
+
+		getHighscores();
+
+		const submitScore = () =>
+			postService({
+				collection: 'scores',
+				data: {
+					time: statsHandler.getTime(),
+					score: statsHandler.getScore(),
+					accuracy: statsHandler.getAccuracy(),
+					poemId: route.params.id,
+				},
+			});
+
 		return {
 			poem,
 			activeTab,
@@ -119,6 +157,9 @@ export default {
 			progressCounter,
 			accuracy,
 			completed,
+			submitScore,
+			highscores,
+			sortedHighscores
 		};
 	},
 };
@@ -137,11 +178,6 @@ export default {
 	position: relative;
 	width: 100%;
 	transition: all 0.3s ease;
-}
-
-.content-item {
-	width: 100%;
-	position: absolute;
 }
 
 .typing {
@@ -191,7 +227,7 @@ export default {
 	border-radius: 4px;
 	height: 33px;
 	margin-left: 20px;
-	font-family: 'Google Sans';
+	font-family: 'Poppins';
 	font-size: 14px;
 	font-weight: 500;
 	cursor: pointer;
@@ -217,10 +253,12 @@ export default {
 	align-items: center;
 	margin-left: auto;
 	margin-right: -141px;
+	font-family:'Roboto Mono';
 	transition: all 0.2s ease;
 }
 
 .typing-stats .value-wrapper {
+
 	margin-left: 35px;
 	flex-direction: row;
 	display: flex;
@@ -239,12 +277,13 @@ export default {
 }
 
 .value.timer {
-	width: auto !important;
+	font-feature-settings: 'tnum';
+	margin-right:20px;
+	font-variant-numeric: tabular-nums;
 }
 
 .icon {
 	margin-left: 10px;
-	margin-bottom: 3px;
 	font-size: 22px;
 	color: rgb(156, 156, 156);
 }
@@ -263,7 +302,7 @@ export default {
 	cursor: pointer;
 	background: #fff;
 	font-weight: 600;
-	font-family: 'Google Sans';
+	font-family: 'Poppins';
 	border: none;
 	align-items: center;
 	font-size: 14px;
@@ -277,8 +316,11 @@ export default {
 	color: #222;
 }
 
+.active:hover{
+	background:#1a73e80a!important;
+}
+
 .poem-info {
-	position: sticky;
 	display: flex;
 	flex-direction: column;
 	top: 64px;
@@ -296,6 +338,18 @@ export default {
 	float: left;
 	width: 100%;
 	padding-bottom: 20px;
+}
+
+.info-wrapper{
+	font-size:12px;
+	color: #5f6368;
+	float:left;
+	padding:20px 0px;
+}
+
+.info{
+	border-radius:8px;
+	
 }
 
 .author span {

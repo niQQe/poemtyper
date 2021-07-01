@@ -21,18 +21,7 @@
 		</button>
 		<div class="options-container" :class="[addTransitionClass ? 'test' : '']" v-if="showOptions">
 			<div class="options">
-				<div @click="showOptions = false" class="option">Japanese</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
-				<div class="option">option1</div>
+				<div @click="showOptions = false" class="option">William Shakespeare</div>
 			</div>
 		</div>
 	</div>
@@ -68,7 +57,7 @@ export default {
 
 .select button {
 	border: 1px solid #dadce0;
-	font-family: 'Google Sans';
+	font-family: 'Poppins';
 	max-height: 32px;
 	height: 32px;
 	display: flex;
