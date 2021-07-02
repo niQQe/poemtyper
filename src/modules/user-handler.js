@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const userInfo = ref({});
 
@@ -8,7 +8,7 @@ const setUserInfo = (...args) => {
 	userInfo.value = args[0];
 };
 
-const getUserInfo = () => userInfo.value;
+const getUserInfo = computed(() => userInfo.value);
 
 const setAuthenticated = () => (authenticated.value = true);
 

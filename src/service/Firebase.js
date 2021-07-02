@@ -18,17 +18,33 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 db.settings({ timestampsInSnapshot: true, merge: true });
 
-export const postService = async ({ collection, data }) => {
-	const { email, uid } = userHandler.getUserInfo();
-	const response = await db.collection(collection).add({ email, uid, ...data });
-	console.log(response);
+const postScore = async ({ data }) => {
+	const { email, uid } = userHandler.getUserInfo.value;
+	const response = await db.collection('scores').add({ email, uid, ...data });
+	return response;
 };
-export const getService = async ({ collection, id }) => {
-	console.log(id);
+
+const getHighscores = async ({ id }) => {
 	const snapshot = await firebase
 		.firestore()
-		.collection(collection)
+		.collection('scores')
 		.where('poemId', '==', id)
+		.orderBy('score', 'desc')
+		.limit(10)
 		.get();
+
 	return snapshot.docs.map((doc) => doc.data());
 };
+
+const getUserScores = async () => {
+	const { uid } = userHandler.getUserInfo.value;
+	const snapshot = await firebase
+		.firestore()
+		.collection('scores')
+		.where('uid', '==', uid)
+		.get();
+
+	return snapshot.docs.map((doc) => doc.data());
+};
+
+export default { getHighscores, getUserScores, postScore };

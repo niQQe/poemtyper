@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Poems from '@/views/Poems.vue';
 import Poem from '@/views/Poem.vue';
 import Rankings from '@/views/Rankings.vue';
-import Login from '@/views/Login.vue';
+import Profile from '@/views/Profile.vue';
 
 const routes = [
 	{
@@ -21,9 +21,9 @@ const routes = [
 		component: Rankings,
 	},
 	{
-		path: '/login',
-		name: 'login',
-		component: Login,
+		path: '/profile',
+		name: 'profile',
+		component: Profile,
 	},
 	// {
 	// 	path: '/about',

@@ -42,7 +42,11 @@
 				</div>
 				<div v-if="userHandler.isAuthenticated()">
 					<div style="display:flex;align-items:center;font-weight:500;margin-left:30px;">
-						<img style="width:30px;height:30px;border-radius:30px;margin-right:15px;" @click="logout()" :src="userHandler.getUserInfo().picture" />
+						<img
+							style="width:30px;height:30px;border-radius:30px;margin-right:15px;"
+							@click="logout()"
+							:src="userHandler.getUserInfo.value.photoURL"
+						/>
 						<!-- {{ userHandler.userInfo.value.displayName }} -->
 					</div>
 					<!-- <button @click="logout">Logout</button> -->
@@ -87,19 +91,20 @@ export default {
 
 		const router = useRouter();
 
-	// TODO FIXA ALL INLINESTYLEING, BILD SYNS INTE VID FÖRSTA INLOGG
+		// TODO FIXA ALL INLINESTYLEING, BILD SYNS INTE VID FÖRSTA INLOGG
 
-	// TODO FIXA SÅ ATT DINA SCORES SYNS PÅ DIN PROFIL
+		// TODO FIXA SÅ ATT DINA SCORES SYNS PÅ DIN PROFIL
 
-	// TODO FIXA SÅ MAN KAN GÅ IN PÅ aNDRAS PROFILER O SE DERAS SCORES
+		// TODO FIXA SÅ MAN KAN GÅ IN PÅ aNDRAS PROFILER O SE DERAS SCORES
 
+		/**
+		 * Check if user is sigend in
+		 */
 		firebase.auth().onAuthStateChanged((user) => {
-			if (user) {
-				const { email, photoURL, uid } = user;
-				console.log(user);
-				userHandler.setUserInfo({ email, picture: photoURL, uid });
-				userHandler.setAuthenticated();
-			}
+			if (!user) return;
+			const { email, photoURL, uid } = user;
+			userHandler.setUserInfo({ email, photoURL, uid });
+			userHandler.setAuthenticated();
 		});
 
 		const login = async () => {
@@ -108,6 +113,7 @@ export default {
 				const userInfo = await firebase.auth().signInWithPopup(provider);
 				if (userInfo) {
 					const { email, photoURL, uid } = userInfo.user;
+					console.log(photoURL);
 					userHandler.setUserInfo({ email, photoURL, uid });
 				}
 			} catch (e) {
@@ -221,8 +227,8 @@ nav {
 	margin-top: 1px;
 }
 
-.router-link-exact-active:hover{
-	background:#1a73e80a!important;
+.router-link-exact-active:hover {
+	background: #1a73e80a !important;
 }
 
 a {

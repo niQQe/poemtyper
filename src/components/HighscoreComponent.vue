@@ -1,48 +1,16 @@
 <template>
-	<table>
-		<tr>
-			<th class="text-left position">#</th>
-			<th class="text-left">Username</th>
-			<th class="text-right">Accuracy</th>
-			<th class="text-right">Time</th>
-			<th class="text-right">Score</th>
-		</tr>
-		<tbody v-if="highscores.length">
-			<tr
-				v-for="(score, index) in highscores"
-				:key="score"
-				:class="[fadeIn ? 'fadeIn' : '']"
-				:style="`transition-delay:${'0.' + index + 80}s`"
-			>
-				<td class="text-left ">{{ index + 1 }}</td>
-				<td class="text-left">{{ score.email }}</td>
-				<td class="text-right">{{ score.accuracy }}%</td>
-				<td class="text-right">{{ score.time }}</td>
-				<td class="text-right">{{ score.score }}</td>
-			</tr>
-		</tbody>
-		<tbody v-else>
-			<tr
-				v-for="(score, index) in 10"
-				:key="score"
-				:class="[fadeIn ? 'fadeIn' : '']"
-				:style="`transition-delay:${'0.' + index + 80}s`"
-			>
-				<td class="text-left">{{ index + 1 }}</td>
-				<td class="text-left">Could be you!</td>
-				<td class="text-right"></td>
-				<td class="text-right"></td>
-				<td class="text-right"></td>
-			</tr>
-		</tbody>
-	</table>
+	<datatable :highscores="highscores" :fadeIn="fadeIn"></datatable>
 </template>
 
 <script>
+import { watch, ref } from 'vue';
 
-import { watch, ref } from 'vue'
+import datatable from '@/components/TableComponent.vue';
 
 export default {
+	components: {
+		datatable,
+	},
 	props: {
 		active: {
 			type: String,
@@ -54,19 +22,20 @@ export default {
 		},
 	},
 	setup(props) {
-		
-		const fadeIn = ref()
+		const fadeIn = ref(false);
 
-		watch(() => props.active, (v) => {
-			if(v === 'highscore')  {
-				setTimeout(() => {
-					fadeIn.value = true
-				},1)
+		watch(
+			() => props.active,
+			(v) => {
+				if (v === 'highscore') {
+					setTimeout(() => {
+						fadeIn.value = true;
+					}, 1);
+				} else fadeIn.value = false;
 			}
-			else fadeIn.value = false
-		})
+		);
 		return {
-			fadeIn
+			fadeIn,
 		};
 	},
 };
@@ -92,8 +61,8 @@ th {
 	max-width: 30px;
 }
 
-.position-number{
-	padding-left:30px;
+.position-number {
+	padding-left: 30px;
 }
 
 .fadeIn {

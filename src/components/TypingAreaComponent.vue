@@ -75,11 +75,9 @@ export default {
 			return currentLine.value === poemData.length - 1 && currentCharIndex.value === poemData[poemData.length - 1].length;
 		};
 
-		//TODO VISA KALKYLERAT SCORE NÄR MAN ÄR KLAR
-
 		const setCorrect = (currentChar) => (currentChar.correct = true);
 
-		const setCompleted = () =>  completed.value = true
+		const setCompleted = () => (completed.value = true);
 
 		const addEventListener = () => window.addEventListener('keydown', keyHandler);
 
@@ -137,7 +135,10 @@ export default {
 				return;
 			}
 
-			if (e.key == '½') setCompleted();
+			if (e.key == '½') {
+				setCompleted();
+				clearIntervalTimer();
+			}
 
 			const pressedKey = e.key;
 			const currentChar = poemData[currentLine.value][currentCharIndex.value];
@@ -264,7 +265,6 @@ export default {
 	margin-top: 20px;
 	position: relative;
 	flex: 1.6;
-	padding-right: 50px;
 	display: flex;
 }
 
@@ -278,7 +278,7 @@ export default {
 .char {
 	float: left;
 	font-size: 24px;
-	height: 30px;
+	height: 35px;
 }
 
 .status {
