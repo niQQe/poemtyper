@@ -24,27 +24,49 @@ const postScore = async ({ data }) => {
 	return response;
 };
 
+// const hasData = (fields, poemName) => {
+// 	return Object.keys(fields).includes(poemName);
+// };
+
+const postScoreTest = async ({ data }) => {
+	const { email } = userHandler.getUserInfo.value;
+
+	const userRef = db.collection('users').doc(email);
+
+	const existingData = (await userRef.get()).data();
+
+	if (!existingData) {
+		userRef.set({ [data.poemName]: [data] });
+		return;
+	}
+	if (existingData[data.poemName]) {
+		existingData[data.poemName].push(data);
+		userRef.set({ ...existingData });
+	} else {
+		const newData = { ...existingData, [data.poemName]: [data] };
+		userRef.set({ ...newData });
+	}
+};
+
 const getHighscores = async ({ id }) => {
-	const snapshot = await firebase
-		.firestore()
+	const snapshot = await db
 		.collection('scores')
 		.where('poemId', '==', id)
-		.orderBy('score', 'desc')
-		.limit(10)
 		.get();
+
+	console.log(snapshot);
 
 	return snapshot.docs.map((doc) => doc.data());
 };
 
 const getUserScores = async () => {
-	const { uid } = userHandler.getUserInfo.value;
-	const snapshot = await firebase
-		.firestore()
-		.collection('scores')
-		.where('uid', '==', uid)
-		.get();
-
-	return snapshot.docs.map((doc) => doc.data());
+	const { email } = userHandler.getUserInfo.value;
+	return (
+		await db
+			.collection('users')
+			.doc(email)
+			.get()
+	).data();
 };
 
-export default { getHighscores, getUserScores, postScore };
+export default { getHighscores, getUserScores, postScore, postScoreTest };

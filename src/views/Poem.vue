@@ -95,11 +95,11 @@
 		</div>
 		<div class="content-area-wrapper">
 			<div class="content">
-				<div class="content-item typing" v-show="activeTab === 'poem'">
-					<TypingArea :poem="poem" />
+				<div class="content-item typing" v-if="activeTab === 'poem'">
+					<TypingArea :poem="poem" :activeTab="activeTab" />
 				</div>
-				<div class="content-item highscore" v-show="activeTab === 'highscore'">
-					<Highscore :highscores="highscores" :active="activeTab" />
+				<div class="content-item highscore" v-if="activeTab === 'highscore'">
+					<Highscore :active="activeTab" />
 				</div>
 			</div>
 		</div>
@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import database from '@/service/Firebase.js';
 import TypingArea from '@/components/TypingAreaComponent.vue';
@@ -121,9 +121,6 @@ export default {
 		Highscore,
 	},
 	setup() {
-		// TODO FIXA SÅ DEN PUSHAR IN DITT SCORE I HIGHSCORE _OM_ SCORET ÄR TILLRÄCKLIGT HÖGT
-
-		// TODO TA BORT KEYEVENTLISTENER NÄR MAN TRYCKER PÅ HIGHSCORE
 		const { timer, progressCounter, accuracy, completed } = statsHandler;
 
 		/**
@@ -133,8 +130,6 @@ export default {
 			() => completed.value,
 			(v) => (v ? (submitted.value = false) : null)
 		);
-
-		const highscores = ref([]);
 
 		const scoreIsSubmitting = ref(false);
 
@@ -148,16 +143,7 @@ export default {
 
 		const poem = dataHandler.getSinglePoem(route.params.id);
 
-		const getHighscores = async () => {
-			try {
-				const response = await database.getHighscores({ id: route.params.id });
-				highscores.value = response;
-			} catch (e) {
-				console.log(e);
-			}
-		};
-
-		const submitScore = () => {
+		const submitScore = async () => {
 			/** Make sure only authenticated users can submit scores */
 			if (!userHandler.isAuthenticated()) {
 				console.log('Im not that stupid');
@@ -165,12 +151,21 @@ export default {
 			}
 			scoreIsSubmitting.value = true;
 			try {
-				const response = database.postScore({
+				const response = await database.postScore({
 					data: {
 						time: statsHandler.getTime(),
 						score: statsHandler.getScore(),
 						accuracy: statsHandler.getAccuracy(),
-						poemId: poem.id,
+						poemId: String(poem.id),
+						poemName: poem.title,
+					},
+				});
+				await database.postScoreTest({
+					data: {
+						time: statsHandler.getTime(),
+						score: statsHandler.getScore(),
+						accuracy: statsHandler.getAccuracy(),
+						poemId: String(poem.id),
 						poemName: poem.title,
 					},
 				});
@@ -184,11 +179,6 @@ export default {
 				console.log(e);
 			}
 		};
-
-		onMounted(() => {
-			getHighscores();
-		});
-
 		return {
 			poem,
 			activeTab,
@@ -198,11 +188,11 @@ export default {
 			accuracy,
 			completed,
 			submitScore,
-			highscores,
 			statsHandler,
 			scoreIsSubmitting,
 			submitted,
 			userHandler,
+			removeEventListener,
 		};
 	},
 };
@@ -213,8 +203,8 @@ export default {
 	display: flex;
 	position: relative;
 	overflow: hidden;
-	width: 900px;
-	height: 600px;
+	width: 100%;
+	padding-bottom: 200px;
 }
 
 .content {
@@ -229,7 +219,6 @@ export default {
 
 .highscore {
 	margin-top: 0px;
-
 	left: 100%;
 }
 
@@ -244,7 +233,7 @@ export default {
 .poem-header {
 	display: flex;
 	height: 47px;
-	width: 900px;
+	width: 100%;
 	margin-top: 8px;
 	border-bottom: 1px solid rgb(218, 220, 224);
 }
@@ -312,7 +301,7 @@ export default {
 	font-variant-numeric: tabular-nums;
 	display: flex;
 	align-items: center;
-	margin-left: auto;
+	margin-left: 30px;
 	margin-right: -232px;
 	font-family: 'Roboto Mono';
 	transition: all 0.2s ease;
@@ -490,6 +479,6 @@ i {
 	color: #202124;
 	width: 100%;
 	float: left;
-	font-size: 36px;
+	font-size: 4.1vh;
 }
 </style>

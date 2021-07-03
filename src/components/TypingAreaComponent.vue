@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 
 import statsHandler from '@/modules/stats-handler.js';
 
@@ -29,6 +29,10 @@ export default {
 	props: {
 		poem: {
 			type: Object,
+			required: true,
+		},
+		activeTab: {
+			type: String,
 			required: true,
 		},
 	},
@@ -115,7 +119,7 @@ export default {
 
 		const caretPosition = (lineIndex, charIndex) => currentLine.value === lineIndex && currentCharIndex.value === charIndex;
 
-		const resetChallenge = () => {
+		const resetChallenge = async () => {
 			resetCurrentCharIndex();
 			resetCurrentLine();
 			resetProgressCount();
@@ -147,12 +151,15 @@ export default {
 			if (keyIsCorrect(pressedKey, currentChar.char)) {
 				addToProgressCount();
 				setCorrect(currentChar);
+				addKeyPress();
+				nextChar();
 			} else {
-				addError();
+				/**
+				 * Start counting errors when user have get the first key correct
+				 */
+				if (currentCharIndex.value > 0) addError();
 				return;
 			}
-			addKeyPress();
-			nextChar();
 
 			if (poemCompleted()) {
 				setCompleted();
@@ -168,6 +175,18 @@ export default {
 			}
 		};
 
+		/** Prevent the user from typing when highscore is viewed */
+		watch(
+			() => props.activeTab,
+			(value) => {
+				if (value === 'highscore') removeEventListener();
+				else addEventListener();
+			}
+		);
+
+		/**
+		 * Start the timer when user starts
+		 */
 		watch(
 			() => currentCharIndex.value,
 			(value) => {
@@ -193,6 +212,21 @@ export default {
 			setTimeout(() => {
 				fadeUp.value = true;
 			}, 10);
+		});
+
+		/**
+		 * Reset challenge if component is destroyed (not on the current route)
+		 */
+		onBeforeUnmount(async () => {
+			resetCurrentCharIndex();
+			resetCurrentLine();
+			resetProgressCount();
+			resetCorrects();
+			resetCompleted();
+			resetTimer();
+			resetKeyPressCounter();
+			resetErrors();
+			clearIntervalTimer();
 		});
 
 		return {
@@ -262,7 +296,7 @@ export default {
 }
 
 .type-area {
-	margin-top: 20px;
+	margin-top: 5px;
 	position: relative;
 	flex: 1.6;
 	display: flex;
@@ -277,8 +311,8 @@ export default {
 
 .char {
 	float: left;
-	font-size: 24px;
-	height: 35px;
+	font-size: 20px;
+	height: 25px;
 }
 
 .status {
@@ -301,5 +335,15 @@ export default {
 
 .bg-red {
 	background: #ee3532;
+}
+
+@media only screen and (min--moz-device-pixel-ratio: 2),
+	only screen and (-o-min-device-pixel-ratio: 2/1),
+	only screen and (-webkit-min-device-pixel-ratio: 2),
+	only screen and (min-device-pixel-ratio: 2) {
+	.char {
+		background-size: 100px 100px;
+		/* rest of your styles... */
+	}
 }
 </style>

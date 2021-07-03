@@ -36,14 +36,14 @@ const getCharAmount = (poem) => {
 };
 
 const getTime = () => {
-	return `${minutes.value}:${seconds.value}:${milliseconds.value}`;
+	return timer.value;
 };
 
 const getAccuracy = () => accuracy.value;
 
 const getScore = () => {
-	return ((100000 - +timer.value.replace(/:/g, '')) * (+accuracy.value / 100)).toFixed(0)
-}
+	return ((100000 - +timer.value.replace(/:/g, '')) * (+accuracy.value / 100)).toFixed(0);
+};
 
 const progressCounter = computed(() => `${progressCount.value}/${charAmount.value}`);
 
@@ -79,5 +79,5 @@ export default {
 	getTime,
 	getAccuracy,
 	timer,
-	getScore
+	getScore,
 };

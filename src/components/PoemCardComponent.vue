@@ -49,8 +49,8 @@ export default {
 .poem-card {
 	border: 1px solid #dadce0;
 	border-radius: 10px;
-	position:relative;
-	overflow:hidden;
+	position: relative;
+	overflow: hidden;
 	width: 100%;
 	height: 100%;
 	float: left;
@@ -59,6 +59,8 @@ export default {
 	padding: 15px;
 	transition: all 0.18s ease;
 	user-select: none;
+	-webkit-backface-visibility: hidden; /* Safari */
+	backface-visibility: hidden;
 }
 
 .poem-card:hover {

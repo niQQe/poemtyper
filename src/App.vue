@@ -3,7 +3,7 @@
 		:class="[addNavShadow ? 'nav-shadow' : '']"
 		style="height:64px;width:100%;border-bottom:1px solid #dadce0;position:fixed;top:0px;display:flex;justify-content:center;background:#fff;z-index:200;"
 	>
-		<div style="width:80%;display:flex;align-items:center;justify-content:space-between;align-items:stretch">
+		<div class="nav-container">
 			<div class="logo">
 				<div class="logo-img"></div>
 				<span>Poetry</span> Typer
@@ -43,7 +43,7 @@
 				<div v-if="userHandler.isAuthenticated()">
 					<div style="display:flex;align-items:center;font-weight:500;margin-left:30px;">
 						<img
-							style="width:30px;height:30px;border-radius:30px;margin-right:15px;"
+							style="width:30px;height:30px;border-radius:30px;margin-left:auto"
 							@click="logout()"
 							:src="userHandler.getUserInfo.value.photoURL"
 						/>
@@ -55,7 +55,7 @@
 		</div>
 	</nav>
 	<div style="margin-top:64px;display:flex; justify-content:center">
-		<div style="width:80%;display:flex" v-if="fetchComplete">
+		<div class="router-content" v-if="fetchComplete">
 			<router-view />
 		</div>
 	</div>
@@ -91,7 +91,7 @@ export default {
 
 		const router = useRouter();
 
-		// TODO FIXA ALL INLINESTYLEING, BILD SYNS INTE VID FÖRSTA INLOGG
+		// TODO FIXA ALL INLINESTYLEING
 
 		// TODO FIXA SÅ ATT DINA SCORES SYNS PÅ DIN PROFIL
 
@@ -113,7 +113,6 @@ export default {
 				const userInfo = await firebase.auth().signInWithPopup(provider);
 				if (userInfo) {
 					const { email, photoURL, uid } = userInfo.user;
-					console.log(photoURL);
 					userHandler.setUserInfo({ email, photoURL, uid });
 				}
 			} catch (e) {
@@ -128,6 +127,7 @@ export default {
 		};
 
 		onMounted(async () => {
+			/** Handles the shadow under the nav when scrolling */
 			const handleScroll = () => {
 				if (window.scrollY > 80) {
 					addNavShadow.value = true;
@@ -235,9 +235,34 @@ a {
 	text-decoration: none;
 }
 
+.nav-container {
+	width: 80%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	align-items: stretch;
+}
+
+.router-content {
+	width: 80%;
+	display: flex;
+}
+
 .logo span {
 	font-weight: 500;
 	float: left;
 	margin-right: 5px;
+}
+
+@media only screen and (min--moz-device-pixel-ratio: 2),
+	only screen and (-o-min-device-pixel-ratio: 2/1),
+	only screen and (-webkit-min-device-pixel-ratio: 2),
+	only screen and (min-device-pixel-ratio: 2) {
+	.nav-container {
+		width: 90%;
+	}
+	.router-content {
+		width: 90%;
+	}
 }
 </style>

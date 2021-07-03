@@ -1,11 +1,15 @@
 <template>
-	<datatable :highscores="highscores" :fadeIn="fadeIn"></datatable>
+	<datatable v-if="highscoreLoaded" :highscores="highscores" :fadeIn="fadeIn"></datatable>
 </template>
 
 <script>
-import { watch, ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+import { useRoute } from 'vue-router';
 
 import datatable from '@/components/TableComponent.vue';
+
+import database from '@/service/Firebase.js';
 
 export default {
 	components: {
@@ -16,26 +20,37 @@ export default {
 			type: String,
 			required: false,
 		},
-		highscores: {
-			type: Array,
-			required: true,
-		},
 	},
-	setup(props) {
+	setup() {
 		const fadeIn = ref(false);
 
-		watch(
-			() => props.active,
-			(v) => {
-				if (v === 'highscore') {
-					setTimeout(() => {
-						fadeIn.value = true;
-					}, 1);
-				} else fadeIn.value = false;
+		const route = useRoute();
+
+		const highscores = ref([]);
+
+		const highscoreLoaded = ref(false);
+
+		const getHighscores = async () => {
+			try {
+				const response = await database.getHighscores({ id: route.params.id });
+				console.log(response);
+				highscores.value = response;
+			} catch (e) {
+				console.log(e);
 			}
-		);
+		};
+
+		onMounted(async () => {
+			await getHighscores();
+			highscoreLoaded.value = true;
+			setTimeout(() => {
+				fadeIn.value = true;
+			}, 100);
+		});
 		return {
 			fadeIn,
+			highscores,
+			highscoreLoaded,
 		};
 	},
 };
