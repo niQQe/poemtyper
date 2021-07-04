@@ -2,6 +2,18 @@
 	<!-- <div v-if="completed">DONE!</div> -->
 	<div style="display:flex;margin:auto;">
 		<div class="type-area">
+			<div class="info-wrapper" v-if="!understand">
+				<div class="info">
+					<div>
+						Time starts when you type the first correct character.<br />
+						You can cancel and reset your run with the ESC-key.<br />
+						Login to submit your score.
+					</div>
+					<div class="understand-button-wrapper">
+						<button @click="iUnderstand">I understand</button>
+					</div>
+				</div>
+			</div>
 			<div class="poem" :class="[fadeUp ? 'fadeUp' : '']">
 				<div v-for="(line, lineIndex) in poemData" :key="lineIndex" class="line">
 					<div
@@ -64,6 +76,12 @@ export default {
 		const fadeUp = ref(false);
 
 		const currentCharIndex = ref(0);
+
+		const understand = ref(false);
+
+		const iUnderstand = () => {
+			understand.value = true;
+		};
 
 		const currentLine = ref(0);
 
@@ -132,6 +150,11 @@ export default {
 		};
 
 		const keyHandler = (e) => {
+			e.preventDefault();
+			if (completed.value && abortKey(e.key)) {
+				resetChallenge();
+				return;
+			}
 			if (keyIsNotValid(e.key)) return;
 
 			if (abortKey(e.key)) {
@@ -164,7 +187,6 @@ export default {
 			if (poemCompleted()) {
 				setCompleted();
 				clearIntervalTimer();
-				removeEventListener();
 				return;
 			}
 
@@ -227,6 +249,7 @@ export default {
 			resetKeyPressCounter();
 			resetErrors();
 			clearIntervalTimer();
+			removeEventListener();
 		});
 
 		return {
@@ -234,6 +257,8 @@ export default {
 			caretPosition,
 			completed,
 			fadeUp,
+			iUnderstand,
+			understand,
 		};
 	},
 };
@@ -307,6 +332,50 @@ export default {
 	width: 100%;
 	float: left;
 	color: #666;
+}
+
+.info-wrapper {
+	position: absolute;
+	background: rgba(255, 255, 255, 0.712);
+	z-index: 10;
+	width: 100%;
+	display: flex;
+	height: 100%;
+	left: 0px;
+	top: 10px;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.understand-button-wrapper {
+	display: flex;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+.understand-button-wrapper button {
+	border: none;
+	font-family: 'Poppins';
+	font-weight: 500;
+	padding: 5px 10px;
+	background: #1a73e8;
+	border-radius: 4px;
+	color: #fff;
+	font-size: 13px;
+}
+
+.understand-button-wrapper button:hover {
+	cursor: pointer;
+	background: #165bb6;
+}
+
+.info {
+	background: #fff;
+	padding: 20px;
+	margin: auto auto auto 150px;
+	border: 1px solid #e2e2e2;
+	border-radius: 8px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.247);
 }
 
 .char {

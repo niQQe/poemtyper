@@ -1,5 +1,5 @@
 <template>
-	<datatable v-if="highscoreLoaded" :highscores="highscores" :fadeIn="fadeIn"></datatable>
+	<datatable v-if="highscoreLoaded" :data="highscores" :fadeIn="fadeIn"></datatable>
 </template>
 
 <script>
@@ -33,7 +33,6 @@ export default {
 		const getHighscores = async () => {
 			try {
 				const response = await database.getHighscores({ id: route.params.id });
-				console.log(response);
 				highscores.value = response;
 			} catch (e) {
 				console.log(e);

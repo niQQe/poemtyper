@@ -1,7 +1,9 @@
 import 'firebase/firestore';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
 import userHandler from '@/modules/user-handler.js';
+import { ref } from 'vue';
 
 var firebaseConfig = {
 	apiKey: 'AIzaSyByUoAxLg34GJy0f1xM8y7yp7cDfIV6kDw',
@@ -18,17 +20,21 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 db.settings({ timestampsInSnapshot: true, merge: true });
 
+const realTimeScores = ref([]);
+
+db.collection('scores')
+	.orderBy('date', 'desc')
+	.onSnapshot((doc) => {
+		realTimeScores.value = doc.docs.map((doc) => doc.data());
+	});
+
 const postScore = async ({ data }) => {
 	const { email, uid } = userHandler.getUserInfo.value;
 	const response = await db.collection('scores').add({ email, uid, ...data });
 	return response;
 };
 
-// const hasData = (fields, poemName) => {
-// 	return Object.keys(fields).includes(poemName);
-// };
-
-const postScoreTest = async ({ data }) => {
+const postScoreToUser = async ({ data }) => {
 	const { email } = userHandler.getUserInfo.value;
 
 	const userRef = db.collection('users').doc(email);
@@ -52,6 +58,7 @@ const getHighscores = async ({ id }) => {
 	const snapshot = await db
 		.collection('scores')
 		.where('poemId', '==', id)
+		.orderBy('score', 'desc')
 		.get();
 
 	console.log(snapshot);
@@ -69,4 +76,4 @@ const getUserScores = async () => {
 	).data();
 };
 
-export default { getHighscores, getUserScores, postScore, postScoreTest };
+export default { getHighscores, getUserScores, postScore, postScoreToUser, realTimeScores };

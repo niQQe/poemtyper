@@ -6,13 +6,6 @@
 				<div class="author">
 					Written by <span>{{ poem.author }}</span>
 				</div>
-				<!-- <div class="info-wrapper">
-					<div class="info">
-						<i class="material-icons">info</i>
-						You can cancel and reset your run with the ESC-key.
-						<button>Hide</button>
-					</div>
-				</div> -->
 			</div>
 			<div class="poem-header">
 				<div class="poem-nav">
@@ -158,15 +151,17 @@ export default {
 						accuracy: statsHandler.getAccuracy(),
 						poemId: String(poem.id),
 						poemName: poem.title,
+						date: new Date(),
 					},
 				});
-				await database.postScoreTest({
+				await database.postScoreToUser({
 					data: {
 						time: statsHandler.getTime(),
 						score: statsHandler.getScore(),
 						accuracy: statsHandler.getAccuracy(),
 						poemId: String(poem.id),
 						poemName: poem.title,
+						date: new Date(),
 					},
 				});
 				if (response) {

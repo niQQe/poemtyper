@@ -2,7 +2,8 @@
 	<button @click="login()">Login</button>
 </template>
 <script>
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import userHandler from '@/modules/user-handler.js';
 
 export default {

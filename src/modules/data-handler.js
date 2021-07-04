@@ -5,6 +5,7 @@ import { ref, computed } from 'vue';
 const poems = ref([]);
 const searchString = ref('');
 
+const latestScores = ref([]);
 const getPoems = async () => {
 	const res = await axios.get('https://poetrydb.org/author,title/Shakespeare;Sonnet');
 	poems.value = res.data.map((poemdata, index) => (poemdata = { id: index, ...poemdata }));
@@ -26,4 +27,4 @@ const filteredPoems = computed(() => {
 	});
 });
 
-export default { poemsAmount, getPoems, getSinglePoem, filteredPoems, searchString };
+export default { poemsAmount, getPoems, getSinglePoem, filteredPoems, searchString, latestScores };

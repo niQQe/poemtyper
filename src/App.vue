@@ -13,6 +13,7 @@
 					class="item"
 					v-for="item in routerItems"
 					:to="item.href"
+					:style="!item.active ? 'pointer-events:none' : ''"
 					:key="item"
 					v-wave="{
 						color: 'currentColor',
@@ -41,22 +42,21 @@
 					Sign in
 				</div>
 				<div v-if="userHandler.isAuthenticated()">
-					<div style="display:flex;align-items:center;font-weight:500;margin-left:30px;">
+					<div style="display:flex;align-items:center;font-weight:500;margin-left:30px;cursor:pointer">
 						<img
 							style="width:30px;height:30px;border-radius:30px;margin-left:auto"
-							@click="logout()"
+							@click="$router.push('/profile')"
 							:src="userHandler.getUserInfo.value.photoURL"
 						/>
-						<!-- {{ userHandler.userInfo.value.displayName }} -->
 					</div>
-					<!-- <button @click="logout">Logout</button> -->
 				</div>
 			</div>
 		</div>
 	</nav>
+
 	<div style="margin-top:64px;display:flex; justify-content:center">
 		<div class="router-content" v-if="fetchComplete">
-			<router-view />
+			<router-view style="width:90%;" />
 		</div>
 	</div>
 </template>
@@ -64,9 +64,10 @@
 <script>
 import dataHandler from '@/modules/data-handler.js';
 import userHandler from '@/modules/user-handler.js';
-import firebase from 'firebase';
+import Database from '@/service/Firebase.js';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
-import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 
 export default {
@@ -76,10 +77,12 @@ export default {
 			{
 				text: 'Browse Poems',
 				href: '/',
+				active: true,
 			},
 			{
 				text: 'Rankings',
 				href: '/rankings',
+				active: false,
 			},
 		];
 
@@ -88,8 +91,6 @@ export default {
 		const fetchComplete = ref(false);
 
 		const addNavShadow = ref(false);
-
-		const router = useRouter();
 
 		// TODO FIXA ALL INLINESTYLEING
 
@@ -120,12 +121,6 @@ export default {
 			}
 		};
 
-		const logout = async () => {
-			await firebase.auth().signOut();
-			userHandler.unsetAuthenticated();
-			router.push('/');
-		};
-
 		onMounted(async () => {
 			/** Handles the shadow under the nav when scrolling */
 			const handleScroll = () => {
@@ -136,7 +131,6 @@ export default {
 				}
 			};
 			window.addEventListener('scroll', handleScroll);
-
 			await getPoems();
 			fetchComplete.value = true;
 		});
@@ -146,8 +140,8 @@ export default {
 			routerItems,
 			addNavShadow,
 			userHandler,
-			logout,
 			login,
+			Database,
 		};
 	},
 };
@@ -236,7 +230,8 @@ a {
 }
 
 .nav-container {
-	width: 80%;
+	width: 100%;
+	padding: 0px 20px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -244,7 +239,7 @@ a {
 }
 
 .router-content {
-	width: 80%;
+	width: 90%;
 	display: flex;
 }
 
@@ -252,6 +247,12 @@ a {
 	font-weight: 500;
 	float: left;
 	margin-right: 5px;
+}
+
+@media only screen and (max-width: 1200px) {
+	body {
+		display: none;
+	}
 }
 
 @media only screen and (min--moz-device-pixel-ratio: 2),
